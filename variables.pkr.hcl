@@ -5,7 +5,7 @@ variable "coreos_stream" {
 
 variable "coreos_version" {
   type    = string
-  default = "41.20241109.3.0"
+  default = "41.20241122.3.0"
 }
 
 variable "coreos_checksum" {
@@ -14,7 +14,7 @@ variable "coreos_checksum" {
   # https://builds.coreos.fedoraproject.org/streams/stable.json;
   # JQ: '.architectures.aarch64.artifacts.metal.formats."raw.xz".disk.sha256'
   default = {
-    aarch64 = "be42fcbe76843875ccc97b2e6423e60632ba17a3eac177ff3cfe1d1ad5760aaa"
-    x86_64  = "a62ab5d766dafa1031950729b3c899f45e0e969d5ba93898de04581b7fe4af7a"
+    aarch64 = "ecbe8dfd6081e828c8e89f816d21c8f91ab4bd1c1e717d2238ae9dd43286b5a7"
+    x86_64  = "a0ca4edb6850c0d04c36eb5832abadbd611e2a2466c6def9058c761f4602b49e"
   }
 }
