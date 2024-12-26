@@ -12,10 +12,6 @@ Provide new values for variables `coreos_version` and paste corresponding SHA256
 
 ## TODO
 
-1. Fix boot freeze when setting kernel argument `ignition.platform.id=hetzner`.
-
-1. Fix loading SSH authorized_keys file from metadata server.
-
 1. Automate Ignition file generation with Butane. Possibly using GitHub Actions.
 
     The commands are:
