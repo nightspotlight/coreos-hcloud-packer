@@ -77,7 +77,7 @@ build {
     inline = [
       "set -o pipefail",
       "mv -v /tmp/config.ign /mnt/ignition/",
-      #"sed -i 's/ignition.platform.id=metal/ignition.platform.id=hetzner/' /mnt/loader/entries/ostree-1.conf", # FIXME boots to blank screen after grub menu
+      "sed -i 's/ignition.platform.id=metal/ignition.platform.id=hetzner/' /mnt/loader/entries/ostree-1.conf", # FIXME boots to blank screen after grub menu
       "umount -v /mnt",
       "sync",
     ]

@@ -14,7 +14,3 @@ storage:
   links:
     - path: /etc/localtime
       target: /usr/share/zoneinfo/Europe/Berlin
-# FIXME boots to blank screen after grub menu
-#kernel_arguments:
-#  should_exist:
-#    - "ignition.platform.id=hetzner"
