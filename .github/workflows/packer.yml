@@ -8,7 +8,6 @@ env:
   #PACKER_CONFIG_DIR: "${{ github.workspace }}/.packer"
   PACKER_PLUGIN_PATH: "${{ github.workspace }}/.packer/plugins"
   PACKER_CACHE_DIR: "${{ github.workspace }}/.packer/cache"
-  TMPDIR: "${{ env.RUNNER_TEMP }}"
 
 jobs:
   packer:
