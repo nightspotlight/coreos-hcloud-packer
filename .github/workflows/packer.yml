@@ -5,9 +5,9 @@ on: workflow_dispatch
 env:
   CHECKPOINT_DISABLE: "1"
   #PACKER_NO_COLOR: "1"
-  PACKER_CONFIG_DIR: "${{ env.RUNNER_TEMP }}/packer"
-  PACKER_PLUGIN_PATH: "${{ env.RUNNER_TEMP }}/packer-plugins"
-  PACKER_CACHE_DIR: "${{ env.RUNNER_TEMP }}/packer-cache"
+  #PACKER_CONFIG_DIR: "${{ github.workspace }}/.packer"
+  PACKER_PLUGIN_PATH: "${{ github.workspace }}/.packer/plugins"
+  PACKER_CACHE_DIR: "${{ github.workspace }}/.packer/cache"
   TMPDIR: "${{ env.RUNNER_TEMP }}"
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.PACKER_PLUGIN_PATH }}
-          key: ${{ runner.os }}-${{ hashFiles('**') }}
+          key: packer-plugins-${{ runner.os }}-${{ hashFiles('.packer/plugins/**') }}
       - name: Run `packer init`
         run: packer init .
       - name: Run `packer validate`
