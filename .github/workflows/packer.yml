@@ -22,13 +22,19 @@ jobs:
           version: "1.11.2"
       - name: Prepare Packer cache directories
         run: mkdir -vp ${{ env.PACKER_PLUGIN_PATH }} ${{ env.PACKER_CACHE_DIR }}
-      - name: Cache Packer plugins
-        uses: actions/cache@v4
+      - name: Restore Packer plugins
+        id: restore-packer-plugins
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.PACKER_PLUGIN_PATH }}
           key: packer-plugins-${{ runner.os }}-${{ hashFiles('.packer/plugins/**') }}
       - name: Run `packer init`
         run: packer init .
+      - name: Cache Packer plugins
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.PACKER_PLUGIN_PATH }}
+          key: ${{ steps.restore-packer-plugins.outputs.cache-primary-key }}
       - name: Run `packer validate`
         run: packer validate .
       - name: Run `packer build`
