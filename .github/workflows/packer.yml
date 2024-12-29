@@ -1,0 +1,34 @@
+name: packer
+
+on: workflow_dispatch
+
+env:
+  CHECKPOINT_DISABLE: "1"
+  #PACKER_NO_COLOR: "1"
+  PACKER_CONFIG_DIR: "${{ env.RUNNER_TEMP }}/packer"
+  PACKER_PLUGIN_PATH: "${{ env.RUNNER_TEMP }}/packer-plugins"
+  PACKER_CACHE_DIR: "${{ env.RUNNER_TEMP }}/packer-cache"
+  TMPDIR: "${{ env.RUNNER_TEMP }}"
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup HashiCorp Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "1.11.2"
+      - name: Cache Packer plugins
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PACKER_PLUGIN_PATH }}
+          key: ${{ runner.os }}-${{ hashFiles('**') }}
+      - name: Run `packer init`
+        run: packer init .
+      - name: Run `packer validate`
+        run: packer validate .
+      - name: Run `packer build`
+        run: packer build .
+        env:
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
