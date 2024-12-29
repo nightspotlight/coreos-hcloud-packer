@@ -12,6 +12,8 @@ env:
 jobs:
   packer:
     runs-on: ubuntu-latest
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup HashiCorp Packer
@@ -31,5 +33,3 @@ jobs:
         run: packer validate .
       - name: Run `packer build`
         run: packer build .
-        env:
-          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
