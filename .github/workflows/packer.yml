@@ -12,7 +12,7 @@ jobs:
   butane:
     runs-on: ubuntu-latest
     container:
-      image: quay.io/coreos/butane:release
+      image: quay.io/coreos/butane:v0.23.0
       options: --security-opt label=disable
       volumes: ["${{ github.workspace }}:/ws"]
     defaults:
