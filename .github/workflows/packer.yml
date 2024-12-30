@@ -12,8 +12,6 @@ env:
 jobs:
   packer:
     runs-on: ubuntu-latest
-    env:
-      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup HashiCorp Packer
@@ -30,6 +28,8 @@ jobs:
           key: packer-plugins-${{ runner.os }}-${{ hashFiles('.packer/plugins/**') }}
       - name: Run `packer init`
         run: packer init .
+        env:
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
       - name: Cache Packer plugins
         uses: actions/cache/save@v4
         with:
@@ -37,5 +37,9 @@ jobs:
           key: ${{ steps.restore-packer-plugins.outputs.cache-primary-key }}
       - name: Run `packer validate`
         run: packer validate .
+        env:
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
       - name: Run `packer build`
         run: packer build .
+        env:
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
