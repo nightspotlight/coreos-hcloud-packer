@@ -11,13 +11,6 @@ env:
 jobs:
   butane:
     runs-on: ubuntu-latest
-    container:
-      image: quay.io/coreos/butane:v0.23.0
-      options: --security-opt label=disable
-      volumes: ["${{ github.workspace }}:/ws"]
-    defaults:
-      run:
-        working-directory: /ws
     steps:
       - name: Set artifact name
         id: set-artifact-name
@@ -25,13 +18,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run Butane
         run: |
-          cd /ws/files/ignition/ && \
-          butane --strict config.bu > config.ign
+          podman pull quay.io/coreos/butane:v0.23.0 && \
+          podman run --rm --security-opt label=disable \
+          -v "${{ github.workspace }}":/ws -w /ws quay.io/coreos/butane:release \
+          --strict --pretty /ws/files/ignition/config.bu > config.ign
       - name: Upload Ignition config
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.set-artifact-name.outputs.ignition-artifact }}
-          path: /ws/files/ignition/config.ign
+          path: config.ign
           if-no-files-found: error
           retention-days: 1
     outputs:
@@ -50,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.butane.outputs.ignition-artifact }}
-          path: ${{ github.workspace }}/files/ignition
+          path: files/ignition
       - name: Setup HashiCorp Packer
         uses: hashicorp/setup-packer@v3
         with:
