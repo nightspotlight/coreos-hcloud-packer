@@ -5,12 +5,41 @@ on: workflow_dispatch
 env:
   CHECKPOINT_DISABLE: "1"
   PACKER_NO_COLOR: "1"
-  #PACKER_CONFIG_DIR: "${{ github.workspace }}/.packer"
   PACKER_PLUGIN_PATH: "${{ github.workspace }}/.packer/plugins"
   PACKER_CACHE_DIR: "${{ github.workspace }}/.packer/cache"
 
 jobs:
+  butane:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/coreos/butane:release
+      options: --security-opt label=disable
+      volumes: ["${{ github.workspace }}:/ws"]
+    defaults:
+      run:
+        working-directory: /ws
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Butane
+        run: |
+          cd /ws/files/ignition/ && \
+          butane --strict config.bu > config.ign
+        with:
+          entrypoint: /bin/bash
+      - name: Set artifact name
+        id: set-artifact-name
+        run: echo "ignition-artifact=ignition-config" >> "$GITHUB_OUTPUT"
+      - name: Upload Ignition config
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.set-artifact-name.outputs.ignition-artifact }}
+          path: /ws/files/ignition/config.ign
+          if-no-files-found: error
+          retention-days: 1
+    outputs:
+      ignition-artifact: ${{ steps.set-artifact-name.outputs.ignition-artifact }}
   packer:
+    needs: butane
     strategy:
       matrix:
         arch:
@@ -19,6 +48,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download Ignition config
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ jobs.butane.outputs.ignition-artifact }}
+          path: ${{ github.workspace }}/files/ignition
       - name: Setup HashiCorp Packer
         uses: hashicorp/setup-packer@v3
         with:
