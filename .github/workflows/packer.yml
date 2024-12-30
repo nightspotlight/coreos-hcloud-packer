@@ -83,3 +83,9 @@ jobs:
         run: packer build -only=coreos.hcloud.${{ matrix.arch }} .
         env:
           HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      - name: Upload Packer manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-manifest-${{ matrix.arch }}
+          path: packer-manifest-${{ matrix.arch }}.json
+          retention-days: 3
