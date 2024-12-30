@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 env:
   CHECKPOINT_DISABLE: "1"
-  #PACKER_NO_COLOR: "1"
+  PACKER_NO_COLOR: "1"
   #PACKER_CONFIG_DIR: "${{ github.workspace }}/.packer"
   PACKER_PLUGIN_PATH: "${{ github.workspace }}/.packer/plugins"
   PACKER_CACHE_DIR: "${{ github.workspace }}/.packer/cache"
