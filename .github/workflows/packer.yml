@@ -11,6 +11,11 @@ env:
 
 jobs:
   packer:
+    strategy:
+      matrix:
+        arch:
+          - aarch64
+          - x86_64
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,10 +41,10 @@ jobs:
           path: ${{ env.PACKER_PLUGIN_PATH }}
           key: ${{ steps.restore-packer-plugins.outputs.cache-primary-key }}
       - name: Run `packer validate`
-        run: packer validate .
+        run: packer validate -only=coreos.hcloud.${{ matrix.arch }} .
         env:
           HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
       - name: Run `packer build`
-        run: packer build .
+        run: packer build -only=coreos.hcloud.${{ matrix.arch }} .
         env:
           HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
