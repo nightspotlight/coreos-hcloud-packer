@@ -82,4 +82,12 @@ build {
       "sync",
     ]
   }
+
+  post-processor "manifest" {
+    output     = "packer-manifest-${source.name}.json"
+    strip_path = true
+    custom_data = merge(local.build_labels, {
+      os_arch = source.name
+    })
+  }
 }
