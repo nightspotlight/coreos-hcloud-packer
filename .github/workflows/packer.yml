@@ -49,7 +49,7 @@ jobs:
       - name: Download Ignition config
         uses: actions/download-artifact@v4
         with:
-          name: ${{ jobs.butane.outputs.ignition-artifact }}
+          name: ${{ needs.butane.outputs.ignition-artifact }}
           path: ${{ github.workspace }}/files/ignition
       - name: Setup HashiCorp Packer
         uses: hashicorp/setup-packer@v3
