@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.PACKER_PLUGIN_PATH }}
-          key: packer-plugins-${{ runner.os }}-${{ runner.arch }}
+          key: packer-plugins-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('versions.pkr.hcl') }}
       - name: Inject Ignition config
         run: echo '${{ needs.butane.outputs.ignition-config }}' > files/ignition/config.ign
       - name: Run `packer init`
