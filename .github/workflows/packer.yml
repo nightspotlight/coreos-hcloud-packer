@@ -20,7 +20,7 @@ jobs:
         run: |
           podman pull quay.io/coreos/butane:${{ env.BUTANE_TAG }} && \
           echo "ignition-config=$(podman run --rm --security-opt label=disable \
-          -v \"${{ github.workspace }}\":/ws -w /ws quay.io/coreos/butane:${{ env.BUTANE_TAG }} \
+          -v "${{ github.workspace }}":/ws -w /ws quay.io/coreos/butane:${{ env.BUTANE_TAG }} \
           --strict /ws/files/ignition/config.bu)" >> "$GITHUB_OUTPUT"
     outputs:
       ignition-config: ${{ steps.butane.outputs.ignition-config }}
