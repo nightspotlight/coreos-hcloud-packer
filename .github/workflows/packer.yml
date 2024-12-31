@@ -12,25 +12,18 @@ jobs:
   butane:
     runs-on: ubuntu-latest
     steps:
-      - name: Set artifact name
-        id: set-artifact-name
-        run: echo "ignition-artifact=ignition-config" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
       - name: Run Butane
+        id: butane
+        env:
+          BUTANE_TAG: v0.23.0
         run: |
-          podman pull quay.io/coreos/butane:v0.23.0 && \
-          podman run --rm --security-opt label=disable \
-          -v "${{ github.workspace }}":/ws -w /ws quay.io/coreos/butane:release \
-          --strict --pretty /ws/files/ignition/config.bu > config.ign
-      - name: Upload Ignition config
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.set-artifact-name.outputs.ignition-artifact }}
-          path: config.ign
-          if-no-files-found: error
-          retention-days: 1
+          podman pull quay.io/coreos/butane:${{ env.BUTANE_TAG }} && \
+          echo "ignition-config=$(podman run --rm --security-opt label=disable \
+          -v \"${{ github.workspace }}\":/ws -w /ws quay.io/coreos/butane:${{ env.BUTANE_TAG }} \
+          --strict /ws/files/ignition/config.bu)" >> "$GITHUB_OUTPUT"
     outputs:
-      ignition-artifact: ${{ steps.set-artifact-name.outputs.ignition-artifact }}
+      ignition-config: ${{ steps.butane.outputs.ignition-config }}
   packer:
     needs: butane
     strategy:
@@ -41,11 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download Ignition config
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.butane.outputs.ignition-artifact }}
-          path: files/ignition
       - name: Setup HashiCorp Packer
         uses: hashicorp/setup-packer@v3
         with:
@@ -57,7 +45,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.PACKER_PLUGIN_PATH }}
-          key: packer-plugins-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('versions.pkr.hcl') }}
+          key: packer-plugins-${{ runner.os }}-${{ runner.arch }}
+      - name: Inject Ignition config
+        run: echo '${{ needs.butane.outputs.ignition-config }}' > files/ignition/config.ign
       - name: Run `packer init`
         run: packer init .
         env:
@@ -82,3 +72,9 @@ jobs:
           name: packer-manifest-${{ matrix.arch }}
           path: packer-manifest-${{ matrix.arch }}.json
           retention-days: 3
+      - name: Post image id
+        run: >
+          echo "- ${{ matrix.arch }} snapshot id:
+          $(jq -cerM '.builds[-1].artifact_id'
+          packer-manifest-${{ matrix.arch }}.json)"
+          >> "$GITHUB_STEP_SUMMARY"
