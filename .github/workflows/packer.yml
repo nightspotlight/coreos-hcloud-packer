@@ -36,7 +36,7 @@ jobs:
         env:
           HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
       - name: Cache Packer plugins
-        if: ${{ steps.cache-primes-restore.outputs.cache-hit != 'true' }}
+        if: steps.restore-packer-plugins.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: ${{ env.PACKER_PLUGIN_PATH }}
