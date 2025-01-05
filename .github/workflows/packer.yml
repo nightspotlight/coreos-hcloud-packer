@@ -5,12 +5,27 @@ on: workflow_dispatch
 env:
   CHECKPOINT_DISABLE: "1"
   PACKER_NO_COLOR: "1"
-  #PACKER_CONFIG_DIR: "${{ github.workspace }}/.packer"
   PACKER_PLUGIN_PATH: "${{ github.workspace }}/.packer/plugins"
   PACKER_CACHE_DIR: "${{ github.workspace }}/.packer/cache"
 
 jobs:
+  butane:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Butane
+        id: butane
+        env:
+          BUTANE_TAG: v0.23.0
+        run: |
+          podman pull quay.io/coreos/butane:${{ env.BUTANE_TAG }} && \
+          echo "ignition-config=$(podman run --rm --security-opt label=disable \
+          -v "${{ github.workspace }}":/ws -w /ws quay.io/coreos/butane:${{ env.BUTANE_TAG }} \
+          --strict /ws/files/ignition/config.bu)" >> "$GITHUB_OUTPUT"
+    outputs:
+      ignition-config: ${{ steps.butane.outputs.ignition-config }}
   packer:
+    needs: butane
     strategy:
       matrix:
         arch:
@@ -31,6 +46,8 @@ jobs:
         with:
           path: ${{ env.PACKER_PLUGIN_PATH }}
           key: packer-plugins-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('versions.pkr.hcl') }}
+      - name: Inject Ignition config
+        run: echo '${{ needs.butane.outputs.ignition-config }}' > files/ignition/config.ign
       - name: Run `packer init`
         run: packer init .
         env:
@@ -49,3 +66,15 @@ jobs:
         run: packer build -only=coreos.hcloud.${{ matrix.arch }} .
         env:
           HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      - name: Upload Packer manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-manifest-${{ matrix.arch }}
+          path: packer-manifest-${{ matrix.arch }}.json
+          retention-days: 3
+      - name: Post image id
+        run: >
+          echo "- ${{ matrix.arch }} snapshot id:
+          $(jq -cerM '.builds[-1].artifact_id'
+          packer-manifest-${{ matrix.arch }}.json)"
+          >> "$GITHUB_STEP_SUMMARY"
