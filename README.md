@@ -10,19 +10,6 @@ Packer scripts for building a [Fedora CoreOS](https://fedoraproject.org/coreos/)
 
 Provide new values for variables `coreos_version` and paste corresponding SHA256 checksum in `coreos_checksum` (as found in stream JSON).
 
-## TODO
-
-1. Automate Ignition file generation with Butane. Possibly using GitHub Actions.
-
-    The commands are:
-
-    ```sh
-    podman pull quay.io/coreos/butane:release
-    podman run -i --rm --security-opt label=disable \
-      -v "$PWD":/pwd -w /pwd quay.io/coreos/butane:release \
-      --pretty --strict config.bu > config.ign
-    ```
-
 ## Authors
 
 * Roman Eremeev (@nightspotlight)
