@@ -62,21 +62,7 @@ build {
       "curl -sfSL -o coreos.raw.xz \"$COREOS_DL_URL\"",
       "echo '${var.coreos_checksum[source.name]}  coreos.raw.xz' | sha256sum -c -",
       "unxz -c coreos.raw.xz | dd of=/dev/sda",
-      "mount -v /dev/sda3 /mnt", # sda3 = boot
-      "mkdir -vp /mnt/ignition",
-    ]
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/files/ignition/config.ign"
-    destination = "/tmp/config.ign"
-  }
-
-  provisioner "shell" {
-    inline_shebang = "/bin/bash -e"
-    inline = [
-      "set -o pipefail",
-      "mv -v /tmp/config.ign /mnt/ignition/",
+      "mount -v /dev/sda3 /mnt",                                                                               # sda3 = boot
       "sed -i 's/ignition.platform.id=metal/ignition.platform.id=hetzner/' /mnt/loader/entries/ostree-1.conf", # FIXME boots to blank screen after grub menu
       "umount -v /mnt",
       "sync",
