@@ -30,24 +30,25 @@ build {
 
   dynamic "source" {
     for_each = local.build_architectures
+    iterator = arch
     labels   = ["hcloud.rescue"]
 
     content {
-      name = source.key
+      name = arch.key
 
-      server_name = "packer-coreos-${replace(source.key, "_", "-")}-${local.build_timestamp_utc}"
-      server_type = source.value
+      server_name = "packer-coreos-${replace(arch.key, "_", "-")}-${local.build_timestamp_utc}"
+      server_type = arch.value
       server_labels = merge(local.build_labels, {
-        os_arch    = source.key
-        build_name = "packer-coreos-${replace(source.key, "_", "-")}-${local.build_timestamp_utc}"
+        os_arch    = arch.key
+        build_name = "packer-coreos-${replace(arch.key, "_", "-")}-${local.build_timestamp_utc}"
       })
       ssh_keys_labels = merge(local.build_labels, {
-        os_arch    = source.key
-        build_name = "packer-coreos-${replace(source.key, "_", "-")}-${local.build_timestamp_utc}"
+        os_arch    = arch.key
+        build_name = "packer-coreos-${replace(arch.key, "_", "-")}-${local.build_timestamp_utc}"
       })
-      snapshot_name = "coreos-${source.key}-${local.build_timestamp_utc}"
+      snapshot_name = "coreos-${arch.key}-${local.build_timestamp_utc}"
       snapshot_labels = merge(local.build_labels, {
-        os_arch = source.key
+        os_arch = arch.key
       })
     }
   }
