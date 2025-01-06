@@ -14,6 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Butane
+        if: hashFiles('files/ignition/config.bu') != ''
         id: butane
         env:
           BUTANE_TAG: v0.23.0
@@ -47,6 +48,7 @@ jobs:
           path: ${{ env.PACKER_PLUGIN_PATH }}
           key: packer-plugins-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('versions.pkr.hcl') }}
       - name: Inject Ignition config
+        if: hashFiles('files/ignition/config.bu') != ''
         run: echo '${{ needs.butane.outputs.ignition-config }}' > files/ignition/config.ign
       - name: Run `packer init`
         run: packer init .
